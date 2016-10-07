@@ -1,0 +1,19 @@
+# circle.yml
+machine:
+  php:
+    version: 7.0.4
+  services:
+    - docker
+
+dependencies:
+  override:
+    - docker run -d -p 127.0.0.1:8080:80 -v `pwd`:/usr/src/app -w /usr/src/app php:7.0-apache php -S 0.0.0.0:80 -t public
+    - composer install
+
+test:
+  override:
+    # 使用 curl 測試 docker 是否有順利執行
+    - curl --retry 3 --retry-delay 5 -v http://localhost:8080
+    # run tests
+    - php -v
+    - php vendor/bin/codecept run unit
